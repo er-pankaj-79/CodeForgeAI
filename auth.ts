@@ -1,14 +1,21 @@
 import NextAuth from "next-auth";
-import {PrismaAdapter} from "@auth/prisma-adapter";
 import { db } from "./lib/db";
 import authConfig from "./auth.config";
 import { getUserById } from "./modules/auth/actions";
+
+import { MongoDBAdapter } from "@auth/mongodb-adapter"
+import clientPromise from "@/lib/mongodb"
+
+console.log("Prisma client:", db)  // should NOT be undefined
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    adapters: MongoDBAdapter(clientPromise),
     callbacks: {
         async signIn({user,account}){
             if(!user || !account) return false;
+            const email = user.email;
+            if(!email) return false;
             const existingUser = await db.user.findUnique({
-                where: { email: user.email }
+                where: { email }
             })
 
             if(!existingUser){
@@ -64,6 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
             return true;
         },
+
         async jwt({token}){
             if(!token.sub) return token;
             const existingUser = await getUserById(token.sub);
@@ -85,6 +93,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },  
     },
     secret: process.env.AUTH_SECRET,
-    adapter: PrismaAdapter(db),
     ...authConfig
 })
