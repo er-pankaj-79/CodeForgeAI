@@ -25,6 +25,9 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  myPlaground Playground[]
+  // stared Plaground Playground[] @relation("StaredPlayground", references: [id], fields: [id])
 }
 
 model Account {
@@ -47,3 +50,41 @@ model Account {
   @@unique([provider, providerAccountId])
   @@index([userId], name: "userId")
 }
+
+enum Templates{
+  REACT
+  NEXTJS
+  VUE
+  HONO
+  ANGULAR
+}
+
+model Playground {
+  id          String   @id @default(cuid()) @map("_id") 
+  title       String
+  description String?
+  template    Templates @default(REACT)
+  createdAt   DateTime @default(now()) 
+  updatedAt   DateTime @updatedAt
+  // Starmark    Starmark[]
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+  // @@index([userId], name: "userId")
+  // Todo templateFiles
+}
+
+// model Starmark {
+//   id          String   @id @default(cuid()) @map("_id") 
+//   userId      String
+//   playgroundId String
+//   isMarked     Boolean  @default(false)
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+
+//   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   playground   Playground  @relation(fields: [playgroundId], references: [id], onDelete: Cascade)
+
+//   @@unique([userId, playgroundId])
+// }
