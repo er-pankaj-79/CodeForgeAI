@@ -10,15 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Mail, GitBranch } from "lucide-react";
-import { signIn } from "@/auth";
+import { signIn } from "@/auth"; // we are importing the signIn function from auth.ts file which is a server action and we can use it in our client component to sign in the user with google or github
 
 async function handleGoogleSignIn(){
-  "use server"
+  "use server" // as we are using server actions(Server component), we need to add this directive to the function
   await signIn("google")
 }
 
 async function handleGithubSignIn(){
-  "use server"
+  "use server" // as we are using server actions(Server component), we need to add this directive to the function
   await signIn("github")
 }
 

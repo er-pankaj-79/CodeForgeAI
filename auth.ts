@@ -1,16 +1,19 @@
 import NextAuth from "next-auth";
-import { db } from "./lib/db";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { db } from "@/lib/db";
 import authConfig from "./auth.config";
 import { getUserById } from "./modules/auth/actions";
 
-import { MongoDBAdapter } from "@auth/mongodb-adapter"
-import clientPromise from "@/lib/mongodb"
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(db),
+  session: {
+    strategy: "jwt",
+  },
+  ...authConfig,
 
-console.log("Prisma client:", db)  // should NOT be undefined
-export const { handlers, signIn, signOut, auth } = NextAuth({
-    adapters: MongoDBAdapter(clientPromise),
-    callbacks: {
-        async signIn({user,account}){
+  callbacks: {
+
+     async signIn({user,account}){
             if(!user || !account) return false;
             const email = user.email;
             if(!email) return false;
@@ -91,7 +94,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             return session;
         },  
-    },
-    secret: process.env.AUTH_SECRET,
-    ...authConfig
-})
+
+  },
+
+  secret: process.env.AUTH_SECRET,
+});
